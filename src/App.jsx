@@ -7,8 +7,8 @@ import {
 } from "./data/questions.js";
 import { QUOTES } from "./data/quotes.js";
 import { computeResult } from "./logic/scoring.js";
-import { buildResultEmailHtml } from "./logic/emailTemplate.js";
-import { saveSubmission, queueResultEmail } from "./firebase.js";
+import { saveSubmission } from "./firebase.js";
+import { submitToMailerLite } from "./mailerlite.js";
 
 // Keeps a slow or unreachable network from stranding the user on the
 // "Sending…" screen forever — the result still shows after ms elapses.
@@ -124,28 +124,43 @@ export default function App() {
     try {
       const ageLabel = AGE_GROUPS.find(g => g.id === ageId)?.label || ageId;
       const r = computeResult(answers[ageId]);
-      await withTimeout(
-        saveSubmission({
+
+      // Best-effort internal record — a Firestore hiccup here shouldn't
+      // stop the MailerLite submission below.
+      try {
+        await withTimeout(
+          saveSubmission({
+            email: trimmed,
+            ageGroup: ageId,
+            answers: answers[ageId],
+            total: r.total,
+            levelTitle: r.level.title,
+          }),
+          8000
+        );
+      } catch (err) {
+        console.warn("Couldn't save the submission record:", err);
+      }
+
+      const configured = await withTimeout(
+        submitToMailerLite({
           email: trimmed,
           ageGroup: ageId,
-          answers: answers[ageId],
+          ageLabel,
           total: r.total,
           levelTitle: r.level.title,
+          levelText: r.level.text,
+          priorityNote: r.priorityNote,
+          recommendations: r.recommendations,
         }),
         8000
       );
-      const html = buildResultEmailHtml({ ageLabel, ...r });
-      await withTimeout(
-        queueResultEmail({
-          to: trimmed,
-          subject: "Your results: your child's educational strategy",
-          html,
-        }),
-        8000
-      );
+      if (!configured) {
+        setSendError("MailerLite isn't connected yet, but your results are ready below.");
+      }
       setSent(true);
     } catch (err) {
-      console.warn("Couldn't send the results email:", err);
+      console.warn("Couldn't submit to MailerLite:", err);
       setSendError("We couldn't send the email, but your results are ready below.");
     } finally {
       setSending(false);
