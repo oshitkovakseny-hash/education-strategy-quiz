@@ -10,6 +10,12 @@
 // accepted the submission. This function always resolves after a short
 // delay — that's the trade-off of the no-backend, no-API-key setup.
 //
+// The MailerLite Universal account script (index.html <head>, account
+// 2568725) is separate from this — it only identifies the site to
+// MailerLite for tracking and for any dashboard-configured pop-ups. It
+// has no documented JS method for submitting arbitrary custom field
+// values, so it can't replace the form submission below.
+//
 // REQUIRED SETUP (see README.md "MailerLite setup" section):
 // 1. Create an embedded form in MailerLite and put its form ID below.
 // 2. Create the custom fields listed below (same keys) in MailerLite.
