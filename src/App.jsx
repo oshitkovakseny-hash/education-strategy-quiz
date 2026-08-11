@@ -82,6 +82,7 @@ export default function App() {
   const order = useMemo(() => stepsForAge(), []);
   const stepIndex = order.indexOf(step);
   const progress = step === "start" ? 0 : Math.min(1, Math.max(0, stepIndex / (order.length - 2)));
+  const quote = QUOTES[Math.max(stepIndex, 0) % QUOTES.length];
 
   function selectAge(id) {
     setAgeId(id);
@@ -177,12 +178,12 @@ export default function App() {
       )}
 
       <div style={{ maxWidth: 560, margin: "0 auto", padding: "32px 20px 64px", position: "relative" }}>
-        {step === "start" && <StartScreen onStart={() => goTo("age")} />}
+        {step === "start" && <StartScreen onStart={() => goTo("age")} quote={quote} />}
 
-        {step === "age" && <AgeScreen onSelect={selectAge} />}
+        {step === "age" && <AgeScreen onSelect={selectAge} quote={quote} />}
 
         {step === "instructions" && (
-          <InstructionsScreen onNext={() => goTo("q0")} onBack={() => goTo("age")} />
+          <InstructionsScreen onNext={() => goTo("q0")} onBack={() => goTo("age")} quote={quote} />
         )}
 
         {step.startsWith("q") && questions && (
@@ -197,6 +198,7 @@ export default function App() {
               const i = Number(step.slice(1));
               goTo(i === 0 ? "instructions" : `q${i - 1}`);
             }}
+            quote={quote}
           />
         )}
 
@@ -208,6 +210,7 @@ export default function App() {
             sending={sending}
             onSubmit={submitEmail}
             onBack={() => goTo("q6")}
+            quote={quote}
           />
         )}
 
@@ -219,10 +222,9 @@ export default function App() {
             sent={sent}
             sendError={sendError}
             onRestart={restart}
+            quote={quote}
           />
         )}
-
-        <QuoteFrame quote={QUOTES[Math.max(stepIndex, 0) % QUOTES.length]} />
       </div>
     </div>
   );
@@ -361,7 +363,7 @@ function GhostButton({ children, onClick }) {
 
 // ---------- screens ----------
 
-function StartScreen({ onStart }) {
+function StartScreen({ onStart, quote }) {
   return (
     <Card>
       <Sunburst color={C.pink} size={80} style={{ top: 18, right: 18 }} />
@@ -394,41 +396,49 @@ function StartScreen({ onStart }) {
       <p style={{ fontSize: 12, color: C.faint, marginTop: 16, lineHeight: 1.5, fontWeight: 600 }}>
         {DISCLAIMER}
       </p>
+
+      <QuoteFrame quote={quote} />
     </Card>
   );
 }
 
-// Одна цитата на каждом экране, в полупрозрачной рамке — фон и
-// граница берутся с прозрачностью, чтобы сквозь них было видно
-// сиреневый фон страницы.
+// Одна цитата внутри каждой карточки экрана — не отдельным блоком
+// ниже, а частью того же видимого содержимого. Рамка и заливка
+// полупрозрачные (жёлтый акцент бренда на пониженной непрозрачности),
+// поэтому сквозь них слегка видна белая карточка под ними.
 function QuoteFrame({ quote }) {
   return (
     <div
       style={{
-        marginTop: 20,
-        padding: "16px 18px",
-        borderRadius: 20,
-        border: "1.5px solid rgba(24,26,34,0.16)",
-        background: "rgba(255,255,255,0.4)",
-        backdropFilter: "blur(6px)",
-        WebkitBackdropFilter: "blur(6px)",
+        marginTop: 22,
+        paddingTop: 18,
+        borderTop: `1.5px solid ${C.border}`,
       }}
     >
-      <div style={{ fontSize: 26, lineHeight: 0.6, fontWeight: 900, color: "rgba(24,26,34,0.3)" }}>
-        &ldquo;
-      </div>
-      <p style={{ fontSize: 15, lineHeight: 1.5, fontStyle: "italic", fontWeight: 700, margin: "2px 0 10px", color: C.ink }}>
-        {quote.text}
-      </p>
-      <div style={{ fontSize: 13, fontWeight: 800, color: C.ink }}>
-        {quote.author}
-        <span style={{ fontWeight: 600, color: C.sub }}> · {quote.role}</span>
+      <div
+        style={{
+          padding: "14px 16px",
+          borderRadius: 16,
+          border: "1.5px solid rgba(245,222,78,0.85)",
+          background: "rgba(245,222,78,0.2)",
+        }}
+      >
+        <div style={{ fontSize: 24, lineHeight: 0.6, fontWeight: 900, color: "rgba(24,26,34,0.32)" }}>
+          &ldquo;
+        </div>
+        <p style={{ fontSize: 14, lineHeight: 1.5, fontStyle: "italic", fontWeight: 700, margin: "2px 0 8px", color: C.ink }}>
+          {quote.text}
+        </p>
+        <div style={{ fontSize: 12, fontWeight: 800, color: C.ink }}>
+          {quote.author}
+          <span style={{ fontWeight: 600, color: C.sub }}> · {quote.role}</span>
+        </div>
       </div>
     </div>
   );
 }
 
-function AgeScreen({ onSelect }) {
+function AgeScreen({ onSelect, quote }) {
   return (
     <Card>
       <StepLabel>Шаг 1 из 2 · Возраст</StepLabel>
@@ -457,11 +467,13 @@ function AgeScreen({ onSelect }) {
         Если ребёнок находится на границе диапазонов, выберите блок, который лучше соответствует
         текущему этапу развития.
       </p>
+
+      <QuoteFrame quote={quote} />
     </Card>
   );
 }
 
-function InstructionsScreen({ onNext, onBack }) {
+function InstructionsScreen({ onNext, onBack, quote }) {
   return (
     <Card>
       <StepLabel>Шаг 2 из 2 · Как отвечать</StepLabel>
@@ -474,11 +486,13 @@ function InstructionsScreen({ onNext, onBack }) {
       <div style={{ textAlign: "center", marginTop: 4 }}>
         <GhostButton onClick={onBack}>Назад</GhostButton>
       </div>
+
+      <QuoteFrame quote={quote} />
     </Card>
   );
 }
 
-function QuestionScreen({ index, total, question, selected, onAnswer, onNext, onBack }) {
+function QuestionScreen({ index, total, question, selected, onAnswer, onNext, onBack, quote }) {
   return (
     <Card>
       <StepLabel>Вопрос {index + 1} из {total}</StepLabel>
@@ -520,11 +534,13 @@ function QuestionScreen({ index, total, question, selected, onAnswer, onNext, on
       <div style={{ textAlign: "center", marginTop: 4 }}>
         <GhostButton onClick={onBack}>Назад</GhostButton>
       </div>
+
+      <QuoteFrame quote={quote} />
     </Card>
   );
 }
 
-function EmailScreen({ email, setEmail, error, sending, onSubmit, onBack }) {
+function EmailScreen({ email, setEmail, error, sending, onSubmit, onBack, quote }) {
   return (
     <Card>
       <StepLabel>Последний шаг</StepLabel>
@@ -562,11 +578,13 @@ function EmailScreen({ email, setEmail, error, sending, onSubmit, onBack }) {
       <div style={{ textAlign: "center", marginTop: 4 }}>
         <GhostButton onClick={onBack}>Назад</GhostButton>
       </div>
+
+      <QuoteFrame quote={quote} />
     </Card>
   );
 }
 
-function ResultScreen({ ageLabel, result, email, sent, sendError, onRestart }) {
+function ResultScreen({ ageLabel, result, email, sent, sendError, onRestart, quote }) {
   const { total, level, recommendations, priorityNote } = result;
   return (
     <Card>
@@ -622,6 +640,8 @@ function ResultScreen({ ageLabel, result, email, sent, sendError, onRestart }) {
 
       <PrimaryButton onClick={onRestart}>Пройти ещё раз</PrimaryButton>
       <p style={{ fontSize: 12, color: C.faint, marginTop: 18, lineHeight: 1.5, fontWeight: 600 }}>{DISCLAIMER}</p>
+
+      <QuoteFrame quote={quote} />
     </Card>
   );
 }
