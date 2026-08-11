@@ -221,6 +221,8 @@ export default function App() {
             onRestart={restart}
           />
         )}
+
+        <QuoteFrame quote={QUOTES[Math.max(stepIndex, 0) % QUOTES.length]} />
       </div>
     </div>
   );
@@ -361,83 +363,66 @@ function GhostButton({ children, onClick }) {
 
 function StartScreen({ onStart }) {
   return (
-    <div>
-      <Card style={{ marginBottom: 24 }}>
-        <Sunburst color={C.pink} size={80} style={{ top: 18, right: 18 }} />
+    <Card>
+      <Sunburst color={C.pink} size={80} style={{ top: 18, right: 18 }} />
 
-        <Pill style={{ marginBottom: 18 }}>ТЕСТ ДЛЯ РОДИТЕЛЕЙ · 4–18 ЛЕТ</Pill>
+      <Pill style={{ marginBottom: 18 }}>ТЕСТ ДЛЯ РОДИТЕЛЕЙ · 4–18 ЛЕТ</Pill>
 
-        <h1
-          style={{
-            fontSize: 30,
-            lineHeight: 1.2,
-            fontWeight: 900,
-            margin: "0 0 14px",
-            textWrap: "balance",
-          }}
-        >
-          Насколько продумана <Highlight>образовательная стратегия</Highlight> вашего ребёнка?
-        </h1>
+      <h1
+        style={{
+          fontSize: 30,
+          lineHeight: 1.2,
+          fontWeight: 900,
+          margin: "0 0 14px",
+          textWrap: "balance",
+        }}
+      >
+        Насколько продумана <Highlight>образовательная стратегия</Highlight> вашего ребёнка?
+      </h1>
 
-        <p style={{ fontSize: 16, lineHeight: 1.55, color: C.sub, margin: "0 0 22px", fontWeight: 600 }}>
-          Пройдите короткий тест и узнайте, соответствует ли она возрасту ребёнка, поддерживает
-          самостоятельность и интерес и сохраняет баланс нагрузки.
-        </p>
+      <p style={{ fontSize: 16, lineHeight: 1.55, color: C.sub, margin: "0 0 22px", fontWeight: 600 }}>
+        Пройдите короткий тест и узнайте, соответствует ли она возрасту ребёнка, поддерживает
+        самостоятельность и интерес и сохраняет баланс нагрузки.
+      </p>
 
-        <div style={{ display: "flex", gap: 10, marginBottom: 24, flexWrap: "wrap" }}>
-          <Pill style={{ border: `1.5px solid ${C.border}`, fontWeight: 700 }}>📋 7 вопросов</Pill>
-          <Pill style={{ border: `1.5px solid ${C.border}`, fontWeight: 700 }}>⏱ 3–5 минут</Pill>
-        </div>
+      <div style={{ display: "flex", gap: 10, marginBottom: 24, flexWrap: "wrap" }}>
+        <Pill style={{ border: `1.5px solid ${C.border}`, fontWeight: 700 }}>📋 7 вопросов</Pill>
+        <Pill style={{ border: `1.5px solid ${C.border}`, fontWeight: 700 }}>⏱ 3–5 минут</Pill>
+      </div>
 
-        <PrimaryButton onClick={onStart}>Начать тест</PrimaryButton>
-        <p style={{ fontSize: 12, color: C.faint, marginTop: 16, lineHeight: 1.5, fontWeight: 600 }}>
-          {DISCLAIMER}
-        </p>
-      </Card>
-
-      <QuoteBubbles />
-    </div>
+      <PrimaryButton onClick={onStart}>Начать тест</PrimaryButton>
+      <p style={{ fontSize: 12, color: C.faint, marginTop: 16, lineHeight: 1.5, fontWeight: 600 }}>
+        {DISCLAIMER}
+      </p>
+    </Card>
   );
 }
 
-function QuoteBubbles() {
+// Одна цитата на каждом экране, в полупрозрачной рамке — фон и
+// граница берутся с прозрачностью, чтобы сквозь них было видно
+// сиреневый фон страницы.
+function QuoteFrame({ quote }) {
   return (
-    <div>
-      <div
-        style={{
-          fontSize: 12,
-          fontWeight: 800,
-          color: C.faint,
-          letterSpacing: 0.4,
-          textTransform: "uppercase",
-          margin: "0 0 12px 4px",
-        }}
-      >
-        Что об этом говорили
+    <div
+      style={{
+        marginTop: 20,
+        padding: "16px 18px",
+        borderRadius: 20,
+        border: "1.5px solid rgba(24,26,34,0.16)",
+        background: "rgba(255,255,255,0.4)",
+        backdropFilter: "blur(6px)",
+        WebkitBackdropFilter: "blur(6px)",
+      }}
+    >
+      <div style={{ fontSize: 26, lineHeight: 0.6, fontWeight: 900, color: "rgba(24,26,34,0.3)" }}>
+        &ldquo;
       </div>
-      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-        {QUOTES.map((q, i) => (
-          <div
-            key={i}
-            style={{
-              background: PASTELS[i % PASTELS.length],
-              borderRadius: 20,
-              borderBottomLeftRadius: 4,
-              padding: "16px 18px",
-            }}
-          >
-            <div style={{ fontSize: 26, lineHeight: 0.6, fontWeight: 900, color: "rgba(24,26,34,0.35)" }}>
-              &ldquo;
-            </div>
-            <p style={{ fontSize: 15, lineHeight: 1.5, fontStyle: "italic", fontWeight: 700, margin: "2px 0 10px" }}>
-              {q.text}
-            </p>
-            <div style={{ fontSize: 13, fontWeight: 800 }}>
-              {q.author}
-              <span style={{ fontWeight: 600, color: C.sub }}> · {q.role}</span>
-            </div>
-          </div>
-        ))}
+      <p style={{ fontSize: 15, lineHeight: 1.5, fontStyle: "italic", fontWeight: 700, margin: "2px 0 10px", color: C.ink }}>
+        {quote.text}
+      </p>
+      <div style={{ fontSize: 13, fontWeight: 800, color: C.ink }}>
+        {quote.author}
+        <span style={{ fontWeight: 600, color: C.sub }}> · {quote.role}</span>
       </div>
     </div>
   );
