@@ -1,363 +1,364 @@
-// Тексты и логика теста «Насколько продумана образовательная стратегия вашего ребёнка?»
-// Источник: методические материалы проекта (образовательная модель развития ребёнка).
+// Content and scoring logic for the quiz
+// "How intentional is your child's educational strategy?"
+// Source: the project's internal methodology (a child-development model).
 
 export const AGE_GROUPS = [
-  { id: "4-6", label: "4–6 лет", hint: "дошкольный возраст" },
-  { id: "7-10", label: "7–10 лет", hint: "младший школьный возраст" },
-  { id: "11-14", label: "11–14 лет", hint: "ранний подростковый возраст" },
-  { id: "15-18", label: "15–18 лет", hint: "старший подростковый возраст" },
+  { id: "4-6", label: "Ages 4–6", hint: "early childhood" },
+  { id: "7-10", label: "Ages 7–10", hint: "early elementary" },
+  { id: "11-14", label: "Ages 11–14", hint: "early adolescence" },
+  { id: "15-18", label: "Ages 15–18", hint: "late adolescence" },
 ];
 
-// Каждый вариант ответа несёт свой балл: А — 3, Б — 2, В — 1, Г — 0.
-const opts = (a, b, v, g) => [
-  { letter: "А", score: 3, text: a },
-  { letter: "Б", score: 2, text: b },
-  { letter: "В", score: 1, text: v },
-  { letter: "Г", score: 0, text: g },
+// Each answer carries its own score: A — 3, B — 2, C — 1, D — 0.
+const opts = (a, b, c, d) => [
+  { letter: "A", score: 3, text: a },
+  { letter: "B", score: 2, text: b },
+  { letter: "C", score: 1, text: c },
+  { letter: "D", score: 0, text: d },
 ];
 
 export const QUESTIONS_BY_AGE = {
   "4-6": [
     {
-      title: "Эмоции",
-      text: "Помогаете ли вы ребёнку замечать и называть эмоции, понимать их причины и находить приемлемый способ выразить чувства?",
+      title: "Emotions",
+      text: "Do you help your child notice and name emotions, understand their causes, and find an acceptable way to express feelings?",
       options: opts(
-        "Регулярно обсуждаем эмоции и вместе ищем способы справляться с ними.",
-        "Обсуждаем, но преимущественно после сильных переживаний.",
-        "Обычно просим успокоиться, не разбирая причину.",
-        "Считаем, что ребёнок должен сам научиться управлять эмоциями."
+        "We regularly talk about emotions and look for ways to handle them together.",
+        "We talk about it, but mostly after strong reactions.",
+        "We usually just ask them to calm down without digging into the cause.",
+        "We think a child should learn to manage emotions on their own."
       ),
     },
     {
-      title: "Общение и отношения",
-      text: "Есть ли у ребёнка возможность играть с другими детьми, учиться договариваться, делиться, отстаивать границы и разрешать конфликты?",
+      title: "Social life and relationships",
+      text: "Does your child get to play with other children, learn to negotiate, share, set boundaries, and resolve conflicts?",
       options: opts(
-        "Такой опыт есть регулярно; взрослые помогают, не решая всё за ребёнка.",
-        "Общение есть, но конфликты чаще полностью решают взрослые.",
-        "Ребёнок редко общается со сверстниками.",
-        "Совместная игра и развитие общения пока не учитываются."
+        "That happens regularly; adults help without solving everything for the child.",
+        "There's social time, but adults usually settle conflicts entirely.",
+        "The child rarely spends time with peers.",
+        "Shared play and social development aren't a priority yet."
       ),
     },
     {
-      title: "Самостоятельность",
-      text: "Может ли ребёнок самостоятельно выбирать игру, выполнять посильные бытовые дела и принимать небольшие решения?",
+      title: "Independence",
+      text: "Can your child choose their own games, handle age-appropriate chores, and make small decisions?",
       options: opts(
-        "Есть постоянные обязанности и право выбора.",
-        "Иногда, если взрослым удобно или ребёнок сам проявляет инициативу.",
-        "Редко: взрослые обычно делают быстрее и лучше.",
-        "Практически всё за ребёнка выполняют и решают взрослые."
+        "They have steady responsibilities and the right to choose.",
+        "Sometimes, when it's convenient for adults or the child takes initiative.",
+        "Rarely — adults usually do it faster and better.",
+        "Adults do and decide almost everything for the child."
       ),
     },
     {
-      title: "Мышление и грамотности",
-      text: "Используете ли вы игру и повседневные ситуации для развития речи, счёта, логики и представлений об окружающем мире?",
+      title: "Thinking and literacies",
+      text: "Do you use play and everyday situations to build language, counting, logic, and understanding of the world?",
       options: opts(
-        "Регулярно считаем, читаем, обсуждаем, сравниваем и исследуем в обычной жизни.",
-        "Развитие происходит главным образом на специальных занятиях.",
-        "Занимаемся редко или только перед поступлением в школу.",
-        "Системного развития этих направлений пока нет."
+        "We regularly count, read, discuss, compare, and explore in everyday life.",
+        "That development mostly happens in dedicated lessons.",
+        "We rarely do it, or only right before school starts.",
+        "There's no systematic effort in these areas yet."
       ),
     },
     {
-      title: "Любознательность и творчество",
-      text: "Может ли ребёнок задавать вопросы, экспериментировать, придумывать игры и создавать что-то без готового образца?",
+      title: "Curiosity and creativity",
+      text: "Can your child ask questions, experiment, invent games, and create things without a template?",
       options: opts(
-        "Для этого регулярно есть время и материалы.",
-        "Иногда, но чаще ребёнок выполняет задания по образцу.",
-        "Вопросы и эксперименты нередко мешают установленному порядку.",
-        "Основная задача ребёнка — правильно выполнять указания взрослого."
+        "There's regularly time and materials for that.",
+        "Sometimes, but the child mostly follows a set example.",
+        "Questions and experiments often disrupt the established routine.",
+        "The child's main job is to correctly follow adult instructions."
       ),
     },
     {
-      title: "Отношение к ошибкам",
-      text: "Как вы реагируете, если ребёнок ошибается или не может сразу выполнить задание?",
+      title: "Attitude toward mistakes",
+      text: "How do you react when your child makes a mistake or can't complete a task right away?",
       options: opts(
-        "Поддерживаем попытку, помогаем найти другой способ и отмечаем прогресс.",
-        "Сначала объясняем ошибку, затем помогаем.",
-        "Часто поправляем или показываем правильный ответ.",
-        "Сравниваем с другими, критикуем или прекращаем занятие."
+        "We support the attempt, help find another way, and note the progress.",
+        "We explain the mistake first, then help.",
+        "We often correct them or show the right answer.",
+        "We compare them to others, criticize, or stop the activity."
       ),
     },
     {
-      title: "Баланс нагрузки",
-      text: "Остаётся ли достаточно времени для сна, движения, свободной игры, общения с семьёй и отдыха без организованных занятий?",
+      title: "Workload balance",
+      text: "Is there enough time left for sleep, movement, free play, family time, and rest without organized activities?",
       options: opts(
-        "Это обязательная часть расписания.",
-        "Обычно да, но в отдельные дни ребёнок перегружен.",
-        "Свободного времени мало из-за сада, подготовки и кружков.",
-        "Почти всё время организовано взрослыми."
+        "It's a fixed part of the schedule.",
+        "Usually yes, but the child is overloaded on some days.",
+        "There's little free time because of preschool, prep classes, and clubs.",
+        "Almost all of the time is organized by adults."
       ),
     },
   ],
   "7-10": [
     {
-      title: "Эмоции и адаптация к школе",
-      text: "Обсуждаете ли вы не только оценки, но и настроение, отношения, трудности и переживания ребёнка, связанные со школой?",
+      title: "Emotions and adjusting to school",
+      text: "Do you talk not only about grades, but also about your child's mood, relationships, struggles, and feelings related to school?",
       options: opts(
-        "Регулярно обсуждаем и вместе ищем решения.",
-        "Обсуждаем, когда возникает заметная проблема.",
-        "Преимущественно говорим об успеваемости и поведении.",
-        "Считаем, что ребёнок должен справляться самостоятельно."
+        "We regularly talk about it and look for solutions together.",
+        "We talk about it when a noticeable problem comes up.",
+        "We mostly talk about grades and behavior.",
+        "We think the child should handle it on their own."
       ),
     },
     {
-      title: "Умение учиться",
-      text: "Помогаете ли вы определить цель учебной задачи, разделить работу на шаги и проверить результат?",
+      title: "Learning how to learn",
+      text: "Do you help your child define the goal of a learning task, break the work into steps, and check the result?",
       options: opts(
-        "Обучаем этим действиям, постепенно передавая ответственность.",
-        "Помогаем составить план, но часто контролируем каждый шаг.",
-        "Обычно просто напоминаем, что и когда сделать.",
-        "Либо выполняем часть работы за ребёнка, либо оставляем без поддержки."
+        "We teach these skills, gradually handing over responsibility.",
+        "We help plan, but often supervise every step.",
+        "We mostly just remind them what and when to do.",
+        "We either do part of the work for the child or leave them without support."
       ),
     },
     {
-      title: "Применение знаний",
-      text: "Связано ли обучение с покупками, измерениями, чтением инструкций, наблюдениями, опытами и семейными проектами?",
+      title: "Applying knowledge",
+      text: "Is learning connected to shopping, measuring, reading instructions, observations, experiments, and family projects?",
       options: opts(
-        "Регулярно показываем, где знания применяются в жизни.",
-        "Иногда, если возникает подходящая ситуация.",
-        "Развитие в основном ограничивается учебниками и домашними заданиями.",
-        "Главное для нас — оценки и правильные ответы."
+        "We regularly show where knowledge applies in real life.",
+        "Sometimes, when a fitting situation comes up.",
+        "Learning is mostly limited to textbooks and homework.",
+        "Grades and correct answers are what matter most to us."
       ),
     },
     {
-      title: "Самостоятельность и ответственность",
-      text: "Есть ли постоянные посильные обязанности и возможность отвечать за часть расписания, вещей и учебных задач?",
+      title: "Independence and responsibility",
+      text: "Are there steady, age-appropriate responsibilities and a chance to own part of the schedule, belongings, and schoolwork?",
       options: opts(
-        "Зона ответственности понятна и постепенно расширяется.",
-        "Обязанности есть, но нужны постоянные напоминания.",
-        "Обязанности появляются только время от времени.",
-        "Взрослые контролируют и организуют практически всё."
+        "Their area of responsibility is clear and gradually growing.",
+        "There are responsibilities, but they need constant reminders.",
+        "Responsibilities show up only occasionally.",
+        "Adults control and organize almost everything."
       ),
     },
     {
-      title: "Интересы и любознательность",
-      text: "Учитываете ли вы интересы ребёнка при выборе книг, кружков, проектов и дополнительных занятий?",
+      title: "Interests and curiosity",
+      text: "Do you factor in your child's interests when choosing books, clubs, projects, and extracurriculars?",
       options: opts(
-        "Ребёнок участвует в выборе и может пробовать разные направления.",
-        "Учитываем интересы, если они совпадают с нашим представлением о пользе.",
-        "Занятия в основном выбирают взрослые.",
-        "Ребёнок обязан посещать выбранные занятия независимо от интереса и состояния."
+        "The child takes part in choosing and can try different directions.",
+        "We factor in interests when they match what we see as useful.",
+        "Adults mostly choose the activities.",
+        "The child must attend the chosen activities regardless of interest or mood."
       ),
     },
     {
-      title: "Ошибки и упорство",
-      text: "Формируется ли понимание, что способности развиваются, а ошибка помогает определить следующий шаг?",
+      title: "Mistakes and persistence",
+      text: "Is your child developing an understanding that abilities grow and a mistake helps point to the next step?",
       options: opts(
-        "Обсуждаем стратегии, усилия и прогресс.",
-        "Поддерживаем, хотя иногда акцентируем результат.",
-        "Часто исправляем и подчёркиваем неправильный ответ.",
-        "Используем критику, наказания, сравнение или стыд."
+        "We discuss strategies, effort, and progress.",
+        "We're supportive, though we sometimes emphasize the outcome.",
+        "We often correct mistakes and stress the wrong answer.",
+        "We use criticism, punishment, comparison, or shame."
       ),
     },
     {
-      title: "Баланс и здоровье",
-      text: "Сбалансировано ли расписание с учётом школы, кружков, сна, движения, общения и свободного времени?",
+      title: "Balance and health",
+      text: "Is the schedule balanced across school, clubs, sleep, movement, social time, and free time?",
       options: opts(
-        "Наблюдаем за состоянием и при необходимости уменьшаем нагрузку.",
-        "В целом да, но периодически возникает усталость.",
-        "Ребёнок часто устаёт, однако мы стараемся сохранить все занятия.",
-        "Результат и дисциплина важнее усталости и нежелания заниматься."
+        "We watch how they're doing and reduce the load when needed.",
+        "Generally yes, but tiredness comes up now and then.",
+        "The child is often tired, but we try to keep all the activities anyway.",
+        "Results and discipline matter more than tiredness or reluctance."
       ),
     },
   ],
   "11-14": [
     {
-      title: "Понимание себя",
-      text: "Помогаете ли вы подростку понимать сильные стороны, интересы, ценности, эмоции и индивидуальные особенности?",
+      title: "Self-understanding",
+      text: "Do you help your teen understand their strengths, interests, values, emotions, and individual traits?",
       options: opts(
-        "Регулярно обсуждаем без оценивания и навязывания выводов.",
-        "Обсуждаем, но иногда убеждаем в своей точке зрения.",
-        "Чаще указываем на недостатки и то, что нужно улучшить.",
-        "Считаем такие разговоры ненужными или несерьёзными."
+        "We talk about it regularly, without judging or pushing our own conclusions.",
+        "We talk about it, but sometimes try to convince them of our view.",
+        "We more often point out flaws and things to improve.",
+        "We consider these conversations unnecessary or unserious."
       ),
     },
     {
-      title: "Участие в решениях",
-      text: "Участвует ли подросток в выборе кружков, дополнительных занятий, учебных целей и приоритетов?",
+      title: "Involvement in decisions",
+      text: "Does your teen take part in choosing clubs, extracurriculars, learning goals, and priorities?",
       options: opts(
-        "Решения принимаются совместно; мнение подростка существенно.",
-        "Он может высказаться, но окончательный выбор обычно делают взрослые.",
-        "Выбор подростка учитывается редко.",
-        "Маршрут полностью определяют взрослые."
+        "Decisions are made together; the teen's opinion carries real weight.",
+        "They can speak up, but adults usually make the final call.",
+        "The teen's choice is rarely taken into account.",
+        "Adults set the whole path."
       ),
     },
     {
-      title: "Самоорганизация",
-      text: "Учится ли подросток планировать учебные дела, распределять время и оценивать результат?",
+      title: "Self-organization",
+      text: "Is your teen learning to plan schoolwork, manage time, and evaluate results?",
       options: opts(
-        "Ответственность постепенно передаётся подростку.",
-        "Планирует сам, но нуждается в частых напоминаниях.",
-        "Расписание и выполнение задач в основном контролируют взрослые.",
-        "Взрослые либо делают всё за него, либо полностью устраняются."
+        "Responsibility is gradually being handed over to the teen.",
+        "They plan on their own, but need frequent reminders.",
+        "Adults mostly control the schedule and task completion.",
+        "Adults either do everything for them or step away entirely."
       ),
     },
     {
-      title: "Критическое мышление и медиаграмотность",
-      text: "Обсуждаете ли вы проверку информации, различие фактов и мнений, манипуляции и безопасное поведение в интернете?",
+      title: "Critical thinking and media literacy",
+      text: "Do you talk about fact-checking, telling facts from opinions, manipulation, and staying safe online?",
       options: opts(
-        "Регулярно разбираем реальные примеры.",
-        "Иногда обсуждаем, главным образом после проблемы.",
-        "Преимущественно устанавливаем запреты и ограничения.",
-        "Цифровая жизнь подростка нас практически не интересует."
+        "We regularly walk through real-life examples.",
+        "We talk about it sometimes, mostly after a problem comes up.",
+        "We mostly set bans and restrictions.",
+        "We're barely involved in the teen's digital life."
       ),
     },
     {
-      title: "Практическое применение знаний",
-      text: "Есть ли проекты или жизненные задачи, где подросток применяет знания, работает в команде, исследует и создаёт результат?",
+      title: "Applying knowledge in practice",
+      text: "Are there projects or real-life tasks where the teen applies knowledge, works in a team, investigates, and produces a result?",
       options: opts(
-        "Такой опыт появляется регулярно.",
-        "Иногда участвует в проектах школы или взрослых.",
-        "Обучение в основном направлено на запоминание.",
-        "Единственным значимым результатом считаются оценки."
+        "That kind of experience comes up regularly.",
+        "They occasionally take part in school or adult-led projects.",
+        "Learning is mostly focused on memorization.",
+        "Grades are treated as the only meaningful outcome."
       ),
     },
     {
-      title: "Ошибки и трудности",
-      text: "Что происходит, если подросток ошибается, получает низкую оценку или хочет отказаться от занятия?",
+      title: "Mistakes and setbacks",
+      text: "What happens when your teen makes a mistake, gets a low grade, or wants to quit an activity?",
       options: opts(
-        "Выясняем причины, обсуждаем опыт и выбираем следующий шаг.",
-        "Поддерживаем, но настаиваем на первоначальном плане.",
-        "Усиливаем контроль, давление или количество занятий.",
-        "Критикуем, сравниваем или лишаем значимых вещей."
+        "We figure out the reasons, discuss the experience, and choose the next step together.",
+        "We're supportive, but insist on the original plan.",
+        "We increase control, pressure, or the number of activities.",
+        "We criticize, compare, or take away things that matter to them."
       ),
     },
     {
-      title: "Нагрузка и благополучие",
-      text: "Учитываете ли вы сон, здоровье, отношения, отдых и эмоциональное состояние подростка?",
+      title: "Workload and well-being",
+      text: "Do you factor in your teen's sleep, health, relationships, rest, and emotional state?",
       options: opts(
-        "Приоритеты регулярно пересматриваются вместе с подростком.",
-        "Учитываем, но в напряжённые периоды учёба становится важнее.",
-        "Признаки перегрузки есть, однако занятия продолжаются.",
-        "Считаем усталость и сопротивление проявлением лени."
+        "Priorities are regularly reviewed together with the teen.",
+        "We factor it in, but schoolwork takes priority during busy periods.",
+        "There are signs of overload, but the activities continue anyway.",
+        "We treat tiredness and pushback as laziness."
       ),
     },
   ],
   "15-18": [
     {
-      title: "Образовательные цели",
-      text: "Есть ли у подростка собственное понимание, зачем он учится и какие возможности хочет получить?",
+      title: "Educational goals",
+      text: "Does your teen have their own sense of why they're studying and what opportunities they want to gain?",
       options: opts(
-        "Он формулирует цели, взрослые помогают уточнять.",
-        "Цели обсуждаются, но в основном предлагаются взрослыми.",
-        "Главная цель — экзамены или поступление туда, куда выбрали родители.",
-        "Цели не обсуждаются; подросток выполняет требования."
+        "They set the goals themselves; adults help refine them.",
+        "Goals are discussed, but mostly proposed by adults.",
+        "The main goal is exams or getting into whatever the parents chose.",
+        "Goals aren't discussed; the teen just meets the requirements."
       ),
     },
     {
-      title: "Выбор дальнейшего пути",
-      text: "Исследует ли подросток профессии и образовательные маршруты через встречи, проекты, практику, курсы или самостоятельный поиск?",
+      title: "Choosing a path forward",
+      text: "Does your teen explore careers and educational routes through meetings, projects, internships, courses, or independent research?",
       options: opts(
-        "Сравнивает варианты и получает практический опыт.",
-        "Изучает отдельные варианты, но пока поверхностно.",
-        "Выбор основан преимущественно на престиже, доходе или мнении взрослых.",
-        "Исследования вариантов пока нет."
+        "They compare options and get hands-on experience.",
+        "They look into a few options, but still fairly superficially.",
+        "The choice is mostly based on prestige, income, or what adults think.",
+        "There's no exploration of options yet."
       ),
     },
     {
-      title: "Самостоятельность и ответственность",
-      text: "Управляет ли подросток расписанием, дедлайнами, подготовкой и обязательствами?",
+      title: "Independence and responsibility",
+      text: "Does your teen manage their own schedule, deadlines, preparation, and commitments?",
       options: opts(
-        "В основном самостоятельно, обращаясь за помощью.",
-        "Самостоятельно, но нужны регулярные напоминания.",
-        "Взрослые постоянно проверяют и организуют дела.",
-        "Взрослые либо полностью управляют процессом, либо не знают, что происходит."
+        "Mostly independently, reaching out for help when needed.",
+        "Independently, but needs regular reminders.",
+        "Adults constantly check in and organize things.",
+        "Adults either fully run the process or have no idea what's going on."
       ),
     },
     {
-      title: "Критическое мышление",
-      text: "Умеет ли подросток сравнивать источники, проверять доказательства, аргументировать позицию и пересматривать мнение?",
+      title: "Critical thinking",
+      text: "Can your teen compare sources, check evidence, argue a position, and revise their opinion?",
       options: opts(
-        "Регулярно применяет это в учёбе и жизни.",
-        "Умеет, но использует непоследовательно.",
-        "Чаще принимает готовые мнения авторитетов или популярных источников.",
-        "Проверка информации и аргументация практически не развиваются."
+        "They regularly apply this in school and in life.",
+        "They can do it, but apply it inconsistently.",
+        "They more often adopt ready-made opinions from authorities or popular sources.",
+        "Fact-checking and argumentation are barely developing."
       ),
     },
     {
-      title: "Практические навыки",
-      text: "Получает ли подросток опыт через проекты, волонтёрство, стажировки, организацию мероприятий, исследования или творчество?",
+      title: "Practical skills",
+      text: "Does your teen gain experience through projects, volunteering, internships, organizing events, research, or creative work?",
       options: opts(
-        "Регулярно есть практические задачи и собственный результат.",
-        "Такой опыт был несколько раз.",
-        "Почти весь опыт ограничивается школой и экзаменами.",
-        "Практические задачи считаются отвлечением от учёбы."
+        "There are regularly practical tasks with a tangible result of their own.",
+        "That kind of experience has come up a few times.",
+        "Almost all of their experience is limited to school and exams.",
+        "Practical tasks are seen as a distraction from studying."
       ),
     },
     {
-      title: "Неудачи и изменение планов",
-      text: "Может ли подросток анализировать ошибку, обращаться за помощью, менять стратегию и продолжать действовать?",
+      title: "Setbacks and changing course",
+      text: "Can your teen analyze a mistake, ask for help, change strategy, and keep going?",
       options: opts(
-        "Взрослые поддерживают анализ и самостоятельный выбор решения.",
-        "Обычно может, но нуждается в активной помощи.",
-        "Неудача ведёт к отказу, конфликту или усилению контроля.",
-        "Ошибки воспринимаются как доказательство отсутствия способностей."
+        "Adults support their analysis and let them choose their own solution.",
+        "Usually yes, but they need active help.",
+        "A setback leads to giving up, conflict, or tighter control.",
+        "Mistakes are seen as proof they lack ability."
       ),
     },
     {
-      title: "Баланс и благополучие",
-      text: "Сохраняется ли баланс между учёбой, экзаменами, сном, здоровьем, отношениями, отдыхом и личными интересами?",
+      title: "Balance and well-being",
+      text: "Is there a balance between studying, exams, sleep, health, relationships, rest, and personal interests?",
       options: opts(
-        "Нагрузка пересматривается при признаках перегрузки.",
-        "Баланс иногда нарушается, но затем восстанавливается.",
-        "Подросток регулярно недосыпает, тревожится или отказывается от отдыха.",
-        "Перегрузка считается необходимой ценой будущего успеха."
+        "The workload is reviewed whenever signs of overload appear.",
+        "Balance sometimes slips, but it's restored afterward.",
+        "The teen is regularly sleep-deprived, anxious, or skips rest.",
+        "Overload is seen as a necessary price for future success."
       ),
     },
   ],
 };
 
-// Общая расшифровка по итоговому баллу (0–21).
+// Overall result by total score (0–21).
 export const LEVELS = [
   {
     min: 17,
     max: 21,
-    title: "Системная образовательная стратегия",
-    text: "Стратегия соответствует возрасту и охватывает не только знания, но и эмоциональное развитие, самостоятельность, мышление, личностные качества и здоровье. Добавлять новые занятия необязательно. Посмотрите, где выбран ответ «Б»: эти направления можно сделать более регулярными.",
+    title: "A well-rounded educational strategy",
+    text: "The strategy fits the child's age and covers more than just knowledge — emotional development, independence, thinking, character, and health too. You don't need to add new activities. Look at where you picked answer \"B\": those areas can become a bit more consistent.",
   },
   {
     min: 12,
     max: 16,
-    title: "Хорошая основа с отдельными пробелами",
-    text: "Полезная образовательная среда уже есть, но некоторые компоненты реализуются ситуативно. Возможен перекос в сторону академических результатов, контроля или занятий, выбранных взрослыми. Выберите два вопроса с самыми низкими баллами как приоритеты на ближайшие 2–3 месяца.",
+    title: "A solid foundation with a few gaps",
+    text: "There's already a useful learning environment in place, but some parts happen more by chance than by design. There may be a tilt toward academic results, control, or activities chosen by adults. Pick the two lowest-scoring questions as your priorities for the next 2–3 months.",
   },
   {
     min: 7,
     max: 11,
-    title: "Фрагментарная стратегия",
-    text: "Отдельные полезные действия пока не объединены в систему. Не увеличивайте количество занятий. Сначала определите интересы ребёнка, реальные трудности и два наиболее важных направления на текущем этапе.",
+    title: "A fragmented strategy",
+    text: "There are useful individual efforts, but they haven't come together into a system yet. Don't add more activities. Start by identifying your child's interests, their real struggles, and the two most important areas right now.",
   },
   {
     min: 0,
     max: 6,
-    title: "Стратегию стоит пересобрать",
-    text: "Маршрут пока недостаточно учитывает возраст, индивидуальность или состояние ребёнка. Начните с наблюдения, снижения перегрузки и выбора 2–3 реалистичных приоритетов. Результат не означает, что ребёнок развивается плохо или родители делают всё неправильно.",
+    title: "Time to rebuild the strategy",
+    text: "The current path doesn't yet account enough for the child's age, individuality, or state. Start with observation, easing the workload, and picking 2–3 realistic priorities. This result doesn't mean your child is developing poorly or that you're doing everything wrong.",
   },
 ];
 
-// Тематическая расшифровка — одна и та же формулировка для каждого номера вопроса
-// независимо от возрастного блока.
+// Thematic notes — the same wording applies to a given question number
+// regardless of the age group.
 export const THEMATIC_NOTES = [
-  "Эмоциональная сфера и понимание себя недостаточно включены в стратегию.",
-  "Ребёнку может не хватать общения, права выбора или участия в образовательных решениях.",
-  "Самостоятельность либо ещё не передаётся, либо требуется без необходимого обучения и поддержки.",
-  "Знания и грамотности могут развиваться формально, без анализа, медиаграмотности или применения.",
-  "Мало пространства для интересов, творчества, проектов и собственного результата.",
-  "Ошибки могут восприниматься как неудача, а не как источник обратной связи и следующий шаг.",
-  "Есть риск перегрузки, снижения мотивации и ухудшения эмоционального состояния.",
+  "The emotional side and self-understanding aren't sufficiently part of the strategy yet.",
+  "Your child may be missing social time, the right to choose, or a voice in educational decisions.",
+  "Independence is either not being handed over yet, or is expected without the support needed to build it.",
+  "Knowledge and literacies may be developing on the surface, without analysis, media literacy, or real application.",
+  "There's little room for interests, creativity, projects, or a result the child can call their own.",
+  "Mistakes may be treated as failure rather than as feedback and a next step.",
+  "There's a risk of overload, lower motivation, and a decline in emotional well-being.",
 ];
 
 export const WORKLOAD_WARNING =
-  "Первая рекомендация — пересмотреть нагрузку и восстановить сон, отдых и свободное время.";
+  "The first recommendation is to review the workload and restore sleep, rest, and free time.";
 
 export const PRIORITY_RULE_NOTE =
-  "Правило приоритета: если в любом вопросе выбран вариант «Г», это направление включено в рекомендации независимо от общего балла.";
+  "Priority rule: if any question was answered with option \"D\", that area is included in the recommendations regardless of the total score.";
 
 export const REFLECTION_QUESTIONS = [
-  "Какие два направления сейчас наиболее важны именно для нашего ребёнка?",
-  "Какие существующие занятия действительно помогают развивать эти направления?",
-  "Что можно убрать, упростить или перенести, чтобы сохранить интерес, свободное время и эмоциональное благополучие?",
+  "Which two areas matter most for your child right now?",
+  "Which current activities are actually helping develop those areas?",
+  "What could you drop, simplify, or move to protect interest, free time, and emotional well-being?",
 ];
 
 export const DISCLAIMER =
-  "Тест предназначен для родительской самооценки и планирования. Он не является психологической, медицинской или педагогической диагностикой, не используется для постановки диагнозов и не предназначен для сравнения детей между собой.";
+  "This quiz is meant for parental self-reflection and planning. It is not a psychological, medical, or educational diagnostic tool, is not used to make diagnoses, and is not intended to compare children with one another.";

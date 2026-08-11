@@ -1,44 +1,44 @@
-// Цитаты педагогов и психологов об образовании и воспитании —
-// на каждом экране показывается ровно одна, по кругу.
+// Quotes from educators and psychologists about learning and parenting —
+// exactly one is shown per screen, cycling through the list by step index.
 export const QUOTES = [
   {
-    text: "Дети не будущие люди, а уже люди.",
-    author: "Януш Корчак",
-    role: "педагог, писатель",
+    text: "Children are not the people of tomorrow, but people of today.",
+    author: "Janusz Korczak",
+    role: "educator, author",
   },
   {
-    text: "Помоги мне сделать это самому.",
-    author: "Мария Монтессори",
-    role: "врач, педагог",
+    text: "Help me to do it myself.",
+    author: "Maria Montessori",
+    role: "physician, educator",
   },
   {
-    text: "Дети — это счастье, созданное нашим трудом.",
-    author: "Василий Сухомлинский",
-    role: "педагог",
+    text: "Children are the happiness created by our own effort.",
+    author: "Vasily Sukhomlinsky",
+    role: "educator",
   },
   {
-    text: "То, что ребёнок умеет делать сегодня в сотрудничестве, завтра он сможет делать самостоятельно.",
-    author: "Лев Выготский",
-    role: "психолог",
+    text: "What a child can do with assistance today, they will be able to do alone tomorrow.",
+    author: "Lev Vygotsky",
+    role: "psychologist",
   },
   {
-    text: "Образование — это не подготовка к жизни; образование — это сама жизнь.",
-    author: "Джон Дьюи",
-    role: "философ, педагог",
+    text: "Education is not preparation for life; education is life itself.",
+    author: "John Dewey",
+    role: "philosopher, educator",
   },
   {
-    text: "Я никогда не учу своих учеников; я только пытаюсь создать условия, в которых они могут учиться.",
-    author: "Альберт Эйнштейн",
-    role: "физик",
+    text: "I never teach my pupils; I only attempt to provide the conditions in which they can learn.",
+    author: "Albert Einstein",
+    role: "physicist",
   },
   {
-    text: "Воспитание представляется трудным делом только до тех пор, пока мы хотим, не воспитывая себя, воспитывать своих детей.",
-    author: "Лев Толстой",
-    role: "писатель",
+    text: "Raising children is difficult only for as long as we try to raise them without raising ourselves.",
+    author: "Leo Tolstoy",
+    role: "author",
   },
   {
-    text: "Как можно больше требования к человеку и как можно больше уважения к нему.",
-    author: "Антон Макаренко",
-    role: "педагог",
+    text: "As much respect for a person as possible, and as much expectation of them as possible.",
+    author: "Anton Makarenko",
+    role: "educator",
   },
 ];

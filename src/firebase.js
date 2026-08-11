@@ -1,13 +1,12 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore, collection, addDoc, serverTimestamp } from "firebase/firestore";
 
-// ВРЕМЕННО указывает на чужой проект Firebase (my-calendar-sync-b88cd),
-// просто чтобы приложение сразу заработало без лишней настройки — этот
-// лендинг с ним никак не связан. Замените на конфиг собственного проекта
-// Firebase (см. README.md, раздел «Отправка письма с расшифровкой»).
-// Значения ниже — публичный конфиг клиента Firebase, они не являются
-// секретом; доступ к данным ограничивается правилами безопасности
-// Firestore, а не сокрытием этих значений.
+// TEMPORARILY points at an unrelated Firebase project (my-calendar-sync-b88cd),
+// just so the app works out of the box without extra setup — this landing
+// page has nothing to do with it. Replace with your own Firebase project's
+// config (see README.md, "Emailing the results" section). The values below
+// are Firebase's public client config, not a secret; access to the data is
+// controlled by Firestore security rules, not by hiding these values.
 const firebaseConfig = {
   apiKey: "AIzaSyDhfu5fKnbaTA2aZYR7lekcSyEK0GbuYPQ",
   authDomain: "my-calendar-sync-b88cd.firebaseapp.com",
@@ -22,12 +21,12 @@ try {
   app = initializeApp(firebaseConfig);
   db = getFirestore(app);
 } catch (e) {
-  console.warn("Firebase не настроен:", e.message);
+  console.warn("Firebase is not configured:", e.message);
 }
 
 export const isFirebaseConfigured = () => !!db;
 
-// Сохраняет ответы и результат теста в коллекцию quiz_submissions.
+// Saves the quiz answers and result to the quiz_submissions collection.
 export async function saveSubmission(data) {
   if (!db) return null;
   const ref = await addDoc(collection(db, "quiz_submissions"), {
@@ -37,10 +36,11 @@ export async function saveSubmission(data) {
   return ref.id;
 }
 
-// Кладёт письмо в коллекцию mail — её читает расширение Firebase
-// «Trigger Email from Firestore» и отправляет письмо через настроенный
-// в расширении SMTP. Без установленного расширения документ просто
-// останется в базе и ничего не отправит — см. README.md.
+// Queues the email in the mail collection — read by the Firebase
+// "Trigger Email from Firestore" extension, which sends it through
+// whatever SMTP is configured in the extension. Without the extension
+// installed, the document just sits in the database and nothing gets
+// sent — see README.md.
 export async function queueResultEmail({ to, subject, html }) {
   if (!db) return null;
   const ref = await addDoc(collection(db, "mail"), {

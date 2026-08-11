@@ -10,8 +10,8 @@ import { computeResult } from "./logic/scoring.js";
 import { buildResultEmailHtml } from "./logic/emailTemplate.js";
 import { saveSubmission, queueResultEmail } from "./firebase.js";
 
-// Не даёт медленной или недоступной сети держать пользователя на экране
-// «Отправляем…» бесконечно — после ms результат всё равно показывается.
+// Keeps a slow or unreachable network from stranding the user on the
+// "Sending…" screen forever — the result still shows after ms elapses.
 function withTimeout(promise, ms) {
   return Promise.race([
     promise,
@@ -36,6 +36,7 @@ const C = {
   dotGreen: "#BFD25E",
   dotGold: "#F0C43A",
   teal: "#8BDBDD",
+  logoTeal: "#2BB0C7",
   warnBg: "#FDE7DC",
   warnText: "#95492B",
 };
@@ -45,7 +46,7 @@ const DOTS = [C.dotOrange, C.dotBlue, C.dotGreen, C.dotGold];
 
 const FONT = `'Nunito', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif`;
 
-// Шаги: start -> age -> instructions -> q0..q6 -> email -> result
+// Steps: start -> age -> instructions -> q0..q6 -> email -> result
 function stepsForAge() {
   return ["start", "age", "instructions", ...Array.from({ length: 7 }, (_, i) => `q${i}`), "email", "result"];
 }
@@ -114,7 +115,7 @@ export default function App() {
     e.preventDefault();
     const trimmed = email.trim();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
-      setEmailError("Проверьте, пожалуйста, адрес почты.");
+      setEmailError("Please double-check your email address.");
       return;
     }
     setEmailError("");
@@ -137,15 +138,15 @@ export default function App() {
       await withTimeout(
         queueResultEmail({
           to: trimmed,
-          subject: "Расшифровка теста: образовательная стратегия вашего ребёнка",
+          subject: "Your results: your child's educational strategy",
           html,
         }),
         8000
       );
       setSent(true);
     } catch (err) {
-      console.warn("Не удалось отправить результат:", err);
-      setSendError("Не получилось отправить письмо, но результат уже готов ниже.");
+      console.warn("Couldn't send the results email:", err);
+      setSendError("We couldn't send the email, but your results are ready below.");
     } finally {
       setSending(false);
       goTo("result");
@@ -178,6 +179,10 @@ export default function App() {
       )}
 
       <div style={{ maxWidth: 560, margin: "0 auto", padding: "32px 20px 64px", position: "relative" }}>
+        <div style={{ marginBottom: 20 }}>
+          <Logo />
+        </div>
+
         {step === "start" && <StartScreen onStart={() => goTo("age")} quote={quote} />}
 
         {step === "age" && <AgeScreen onSelect={selectAge} quote={quote} />}
@@ -231,6 +236,22 @@ export default function App() {
 }
 
 // ---------- decorative bits ----------
+
+function Logo() {
+  return (
+    <div
+      style={{
+        fontFamily: "'Poppins', 'Nunito', sans-serif",
+        fontWeight: 600,
+        fontSize: 21,
+        letterSpacing: -0.3,
+        color: C.logoTeal,
+      }}
+    >
+      ED<span style={{ fontWeight: 500 }}>power</span>
+    </div>
+  );
+}
 
 function Sunburst({ color, size = 90, rays = 14, style }) {
   const lines = Array.from({ length: rays }, (_, i) => {
@@ -368,7 +389,7 @@ function StartScreen({ onStart, quote }) {
     <Card>
       <Sunburst color={C.pink} size={80} style={{ top: 18, right: 18 }} />
 
-      <Pill style={{ marginBottom: 18 }}>ТЕСТ ДЛЯ РОДИТЕЛЕЙ · 4–18 ЛЕТ</Pill>
+      <Pill style={{ marginBottom: 18 }}>A QUIZ FOR PARENTS · AGES 4–18</Pill>
 
       <h1
         style={{
@@ -379,20 +400,20 @@ function StartScreen({ onStart, quote }) {
           textWrap: "balance",
         }}
       >
-        Насколько продумана <Highlight>образовательная стратегия</Highlight> вашего ребёнка?
+        How intentional is your child's <Highlight>educational strategy</Highlight>?
       </h1>
 
       <p style={{ fontSize: 16, lineHeight: 1.55, color: C.sub, margin: "0 0 22px", fontWeight: 600 }}>
-        Пройдите короткий тест и узнайте, соответствует ли она возрасту ребёнка, поддерживает
-        самостоятельность и интерес и сохраняет баланс нагрузки.
+        Take a short quiz to find out whether it fits your child's age, supports independence and
+        interest, and keeps their workload in balance.
       </p>
 
       <div style={{ display: "flex", gap: 10, marginBottom: 24, flexWrap: "wrap" }}>
-        <Pill style={{ border: `1.5px solid ${C.border}`, fontWeight: 700 }}>📋 7 вопросов</Pill>
-        <Pill style={{ border: `1.5px solid ${C.border}`, fontWeight: 700 }}>⏱ 3–5 минут</Pill>
+        <Pill style={{ border: `1.5px solid ${C.border}`, fontWeight: 700 }}>📋 7 questions</Pill>
+        <Pill style={{ border: `1.5px solid ${C.border}`, fontWeight: 700 }}>⏱ 3–5 minutes</Pill>
       </div>
 
-      <PrimaryButton onClick={onStart}>Начать тест</PrimaryButton>
+      <PrimaryButton onClick={onStart}>Start the quiz</PrimaryButton>
       <p style={{ fontSize: 12, color: C.faint, marginTop: 16, lineHeight: 1.5, fontWeight: 600 }}>
         {DISCLAIMER}
       </p>
@@ -402,10 +423,10 @@ function StartScreen({ onStart, quote }) {
   );
 }
 
-// Одна цитата внутри каждой карточки экрана — не отдельным блоком
-// ниже, а частью того же видимого содержимого. Рамка и заливка
-// полупрозрачные (жёлтый акцент бренда на пониженной непрозрачности),
-// поэтому сквозь них слегка видна белая карточка под ними.
+// One quote inside every screen's card — not a separate block below
+// it, but part of the same visible content. The frame and fill are
+// translucent (the brand's yellow accent at low opacity), so the
+// white card underneath shows through slightly.
 function QuoteFrame({ quote }) {
   return (
     <div
@@ -441,8 +462,8 @@ function QuoteFrame({ quote }) {
 function AgeScreen({ onSelect, quote }) {
   return (
     <Card>
-      <StepLabel>Шаг 1 из 2 · Возраст</StepLabel>
-      <h2 style={{ fontSize: 22, fontWeight: 900, margin: "8px 0 18px" }}>Сколько лет вашему ребёнку?</h2>
+      <StepLabel>Step 1 of 2 · Age</StepLabel>
+      <h2 style={{ fontSize: 22, fontWeight: 900, margin: "8px 0 18px" }}>How old is your child?</h2>
       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
         {AGE_GROUPS.map((g, i) => (
           <button
@@ -464,8 +485,8 @@ function AgeScreen({ onSelect, quote }) {
         ))}
       </div>
       <p style={{ fontSize: 13, color: C.faint, marginTop: 16, lineHeight: 1.5, fontWeight: 600 }}>
-        Если ребёнок находится на границе диапазонов, выберите блок, который лучше соответствует
-        текущему этапу развития.
+        If your child is right on the border between two ranges, pick whichever block best fits
+        their current stage of development.
       </p>
 
       <QuoteFrame quote={quote} />
@@ -476,15 +497,15 @@ function AgeScreen({ onSelect, quote }) {
 function InstructionsScreen({ onNext, onBack, quote }) {
   return (
     <Card>
-      <StepLabel>Шаг 2 из 2 · Как отвечать</StepLabel>
-      <h2 style={{ fontSize: 22, fontWeight: 900, margin: "8px 0 14px" }}>Прежде чем начать</h2>
+      <StepLabel>Step 2 of 2 · How to answer</StepLabel>
+      <h2 style={{ fontSize: 22, fontWeight: 900, margin: "8px 0 14px" }}>Before you start</h2>
       <p style={{ fontSize: 16, lineHeight: 1.55, color: C.sub, margin: "0 0 24px", fontWeight: 600 }}>
-        Отвечайте, ориентируясь на последние 2–3 месяца, а не на единичные удачные или сложные
-        ситуации. Выберите вариант, который точнее всего описывает вашу семейную практику.
+        Answer based on the last 2–3 months, not on a single great or difficult moment. Pick
+        whichever option best describes your family's usual practice.
       </p>
-      <PrimaryButton onClick={onNext}>Дальше</PrimaryButton>
+      <PrimaryButton onClick={onNext}>Next</PrimaryButton>
       <div style={{ textAlign: "center", marginTop: 4 }}>
-        <GhostButton onClick={onBack}>Назад</GhostButton>
+        <GhostButton onClick={onBack}>Back</GhostButton>
       </div>
 
       <QuoteFrame quote={quote} />
@@ -495,7 +516,7 @@ function InstructionsScreen({ onNext, onBack, quote }) {
 function QuestionScreen({ index, total, question, selected, onAnswer, onNext, onBack, quote }) {
   return (
     <Card>
-      <StepLabel>Вопрос {index + 1} из {total}</StepLabel>
+      <StepLabel>Question {index + 1} of {total}</StepLabel>
       <h2 style={{ fontSize: 21, fontWeight: 900, lineHeight: 1.35, margin: "8px 0 4px" }}>
         {question.title}
       </h2>
@@ -529,10 +550,10 @@ function QuestionScreen({ index, total, question, selected, onAnswer, onNext, on
         })}
       </div>
       <PrimaryButton onClick={onNext} disabled={selected == null}>
-        {index === total - 1 ? "Завершить" : "Дальше"}
+        {index === total - 1 ? "Finish" : "Next"}
       </PrimaryButton>
       <div style={{ textAlign: "center", marginTop: 4 }}>
-        <GhostButton onClick={onBack}>Назад</GhostButton>
+        <GhostButton onClick={onBack}>Back</GhostButton>
       </div>
 
       <QuoteFrame quote={quote} />
@@ -543,10 +564,10 @@ function QuestionScreen({ index, total, question, selected, onAnswer, onNext, on
 function EmailScreen({ email, setEmail, error, sending, onSubmit, onBack, quote }) {
   return (
     <Card>
-      <StepLabel>Последний шаг</StepLabel>
-      <h2 style={{ fontSize: 22, fontWeight: 900, margin: "8px 0 12px" }}>Куда отправить расшифровку?</h2>
+      <StepLabel>Last step</StepLabel>
+      <h2 style={{ fontSize: 22, fontWeight: 900, margin: "8px 0 12px" }}>Where should we send your results?</h2>
       <p style={{ fontSize: 15, lineHeight: 1.5, color: C.sub, margin: "0 0 20px", fontWeight: 600 }}>
-        Укажите почту — мы пришлём туда подробную расшифровку результата и рекомендации.
+        Add your email — we'll send your full results and recommendations there.
       </p>
       <form onSubmit={onSubmit}>
         <input
@@ -572,11 +593,11 @@ function EmailScreen({ email, setEmail, error, sending, onSubmit, onBack, quote 
         {error && <p style={{ color: "#D9503A", fontSize: 13, fontWeight: 700, margin: "0 0 12px" }}>{error}</p>}
         <div style={{ height: error ? 8 : 20 }} />
         <PrimaryButton type="submit" disabled={sending}>
-          {sending ? "Отправляем…" : "Получить расшифровку"}
+          {sending ? "Sending…" : "Get my results"}
         </PrimaryButton>
       </form>
       <div style={{ textAlign: "center", marginTop: 4 }}>
-        <GhostButton onClick={onBack}>Назад</GhostButton>
+        <GhostButton onClick={onBack}>Back</GhostButton>
       </div>
 
       <QuoteFrame quote={quote} />
@@ -588,18 +609,18 @@ function ResultScreen({ ageLabel, result, email, sent, sendError, onRestart, quo
   const { total, level, recommendations, priorityNote } = result;
   return (
     <Card>
-      <StepLabel>Результат</StepLabel>
+      <StepLabel>Your result</StepLabel>
       <h2 style={{ fontSize: 23, fontWeight: 900, margin: "8px 0 4px" }}>
         <Highlight>{level.title}</Highlight>
       </h2>
       <p style={{ fontSize: 14, color: C.sub, margin: "10px 0 18px", fontWeight: 700 }}>
-        {ageLabel} · {total} из 21 балла
+        {ageLabel} · {total} of 21 points
       </p>
 
       {sendError ? (
         <Banner tone="warn">{sendError}</Banner>
       ) : (
-        <Banner tone="ok">Мы отправили полную расшифровку на {email || "вашу почту"}.</Banner>
+        <Banner tone="ok">We've sent your full results to {email || "your email"}.</Banner>
       )}
 
       <p style={{ fontSize: 16, lineHeight: 1.55, margin: "18px 0", fontWeight: 600 }}>{level.text}</p>
@@ -608,7 +629,7 @@ function ResultScreen({ ageLabel, result, email, sent, sendError, onRestart, quo
 
       {recommendations.length > 0 && (
         <>
-          <SectionTitle>На что обратить внимание в первую очередь</SectionTitle>
+          <SectionTitle>What to focus on first</SectionTitle>
           <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 22 }}>
             {recommendations.map((r, i) => (
               <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
@@ -629,7 +650,7 @@ function ResultScreen({ ageLabel, result, email, sent, sendError, onRestart, quo
         </>
       )}
 
-      <SectionTitle>Вопросы для размышления</SectionTitle>
+      <SectionTitle>Questions to reflect on</SectionTitle>
       <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 24 }}>
         {REFLECTION_QUESTIONS.map((q, i) => (
           <div key={i} style={{ background: PASTELS[i % PASTELS.length], borderRadius: 14, padding: "12px 14px" }}>
@@ -638,7 +659,7 @@ function ResultScreen({ ageLabel, result, email, sent, sendError, onRestart, quo
         ))}
       </div>
 
-      <PrimaryButton onClick={onRestart}>Пройти ещё раз</PrimaryButton>
+      <PrimaryButton onClick={onRestart}>Take it again</PrimaryButton>
       <p style={{ fontSize: 12, color: C.faint, marginTop: 18, lineHeight: 1.5, fontWeight: 600 }}>{DISCLAIMER}</p>
 
       <QuoteFrame quote={quote} />
